@@ -19,13 +19,11 @@ class SimpleConfig:
             self._initialized = True
             self.table_name = table_name
             self._load_configurations()
-            # Détecter l'environnement (dev/prod)
-            env = os.getenv("PYTUNE_ENV", "prod").lower()
 
             # Charger les URL dynamiques en fonction de l'environnement
-            self.REDIS_URL = getattr(self, f"REDIS_URL_{env.upper()}", "redis://127.0.0.1:6379")
-            self.RABBIT_BROKER_URL = getattr(self,f"RABBIT_BROKER_URL_{env.upper()}", "pyamqp://admin:MyStr0ngP@ss2024!@localhost//")
-            self.RABBIT_BACKEND = getattr(self, f"RABBIT_BACKEND_{env.upper()}", "redis://127.0.0.1:6379/0")
+            self.REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
+            self.RABBIT_BROKER_URL = os.getenv("RABBIT_BROKER_URL", "pyamqp://admin:MyStr0ngP@ss2024!@localhost//")
+            self.RABBIT_BACKEND = os.getenv("RABBIT_BACKEND", "redis://127.0.0.1:6379/0")
             
 
     def _load_configurations(self):

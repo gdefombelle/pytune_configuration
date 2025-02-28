@@ -64,13 +64,11 @@ class Config:
                         setattr(self, name, parsed_value) # Définit chaque paramètre comme un attribut
                 await conn.close()
                 await self.logger.log_info(f"Configurations loaded successfully for table: {self.table_name}")
-                # Déterminer l'environnement (dev/prod)
-                env = os.getenv("PYTUNE_ENV", "prod")  # Valeur par défaut "prod"
 
                 # Charger l'URL Redis en fonction de l'environnement
-                config_global.REDIS_URL = getattr(config_global, f"REDIS_URL_{env.upper()}", "redis://127.0.0.1:6379")
-                config_global.RABBIT_BROKER_URL = getattr(config_global,f"RABBIT_BROKER_URL_{env.upper()}", "pyamqp://admin:MyStr0ngP@ss2024!@localhost//")
-                config_global.RABBIT_BACKEND = getattr(config_global, f"RABBIT_BACKEND_{env.upper()}", "redis://127.0.0.1:6379/0")
+                config_global.REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
+                config_global.RABBIT_BROKER_URL = os.getenv("RABBIT_BROKER_URL", "pyamqp://admin:MyStr0ngP@ss2024!@localhost//")
+                config_global.RABBIT_BACKEND = os.getenv("RABBIT_BACKEND", "redis://127.0.0.1:6379/0")
                     
                 logger_admin.sync_log_info(f"REDIS_URL défini sur : {config_global.REDIS_URL}")
                 logger_admin.sync_log_info(f"RABBIT_BROKER_URL défini sur : {config_global.RABBIT_BROKER_URL}")
