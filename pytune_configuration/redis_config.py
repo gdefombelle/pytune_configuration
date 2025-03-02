@@ -1,10 +1,11 @@
 import asyncio
 from redis.asyncio import Redis
-from pytune_logger import Logger
+
+from simple_logger.logger import get_logger, SimpleLogger
 from pytune_configuration.root_config import root_config
 
 # Instance Logger globale
-logger_admin = Logger("pytune", "config")
+logger : SimpleLogger = get_logger()
 redis_client: Redis = None
 
 async def init_redis(redis_url:str)->Redis:
@@ -16,10 +17,10 @@ async def init_redis(redis_url:str)->Redis:
         redis_client = Redis.from_url(redis_url, decode_responses=True)
         # Vérifie la connexion à Redis
         await redis_client.ping()
-        await logger_admin.log_info("Redis connection established successfully.")
+        await logger.ainfo("Redis connection established successfully.")
         return redis_client
     except Exception as e:
-        await logger_admin.log_critical(f"Failed to connect to Redis: {e}")
+        await logger.acritical(f"Failed to connect to Redis: {e}")
         raise
         
 async def get_redis_client(redis_url: str = root_config.REDIS_URL) -> Redis:
@@ -28,7 +29,7 @@ async def get_redis_client(redis_url: str = root_config.REDIS_URL) -> Redis:
     """
     global redis_client
     if redis_client is None:
-        await logger_admin.log_warning("Redis client is not initialized. Re-initializing.")
+        await logger.awarning("Redis client is not initialized. Re-initializing.")
         await init_redis(redis_url)
     return redis_client
 

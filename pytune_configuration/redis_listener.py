@@ -2,10 +2,10 @@ import asyncio
 import inspect
 from redis.asyncio import Redis
 from redis.asyncio.client import PubSub
-from pytune_configuration import logger_admin
+from simple_logger.logger import get_logger, SimpleLogger
 
 
-
+logger: SimpleLogger = get_logger()
 class RedisListener:
     def __init__(self, redis_url: str, channels: dict):
         """
@@ -35,17 +35,17 @@ class RedisListener:
             for channel in self.channels.keys():
                 try:
                     await self.pubsub.subscribe(channel)
-                    await logger_admin.log_info(f"Subscribed to channel: {channel}")
+                    await logger.ainfo(f"Subscribed to channel: {channel}")
                 except Exception as e:
-                    await logger_admin.log_critical(f"Error subscribing to channel {channel}: {e}")
+                    await logger.acritical(f"Error subscribing to channel {channel}: {e}")
                     raise
 
             self.running = True
             self.listener_task = asyncio.create_task(self._listen()) # No need to pass pubsub
-            await logger_admin.log_info("Redis listener successfully started.")
+            await logger.ainfo("Redis listener successfully started.")
 
         except Exception as e:
-            await logger_admin.log_critical(f"Failed to subscribe or listen to Redis channels: {e}")
+            await logger.acritical(f"Failed to subscribe or listen to Redis channels: {e}")
             if self.pubsub:
                 await self.pubsub.close()
             self.pubsub = None
@@ -53,7 +53,7 @@ class RedisListener:
 
     async def _listen(self):
         try:
-            await logger_admin.log_info("Redis listener started.")
+            await logger.ainfo("Redis listener started.")
             async for message in self.pubsub.listen(): # Use async for
                 if message["type"] == "message":
                     channel = message["channel"].decode("utf-8")
@@ -61,15 +61,15 @@ class RedisListener:
                     await self._handle_message(channel, data)
 
         except asyncio.CancelledError:
-            await logger_admin.log_error("Redis listener stopped gracefully due to cancellation.")
+            await logger.aerror("Redis listener stopped gracefully due to cancellation.")
         except Exception as e:
-            await logger_admin.log_error(f"Redis listener encountered an error: {e}")
+            await logger.aerror(f"Redis listener encountered an error: {e}")
         finally:
             self.running = False
             if self.pubsub:
                 await self.pubsub.close()
                 self.pubsub = None # Important: set to None after closing
-            await logger_admin.log_info("Redis listener stopped gracefully.")
+            await logger.ainfo("Redis listener stopped gracefully.")
 
     async def _handle_message(self, channel, data):
         """
@@ -77,14 +77,14 @@ class RedisListener:
         """
         if channel in self.channels:
             callback = self.channels[channel]
-            await logger_admin.log_info(f"Received message on channel {channel}: {data}")
+            await logger.ainfo(f"Received message on channel {channel}: {data}")
             # Vérifie si le callback est asynchrone
             if inspect.iscoroutinefunction(callback):
                 await callback(data)
             else:
                 callback(data)
         else:
-            await logger_admin.log_warning(f"Unhandled channel: {channel} - Message: {data}")
+            await logger.awarning(f"Unhandled channel: {channel} - Message: {data}")
 
     async def stop(self):
         """
@@ -102,7 +102,7 @@ class RedisListener:
             try:
                 await self.listener_task
             except asyncio.CancelledError:
-                await logger_admin.log_warning("Redis listener was already stopped due to cancellation.")
+                await logger.awarning("Redis listener was already stopped due to cancellation.")
         if self.pubsub:
             await self.pubsub.close()
             self.pubsub = None
@@ -110,4 +110,4 @@ class RedisListener:
             await self.redis_client.close()
 
         self.running = False
-        await logger_admin.log_info("Redis listener stopped and Redis client closed.")
+        await logger.ainfo("Redis listener stopped and Redis client closed.")

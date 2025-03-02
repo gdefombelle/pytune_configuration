@@ -32,6 +32,6 @@ class ConfigChangeHandler:
             elif message == "force_reload":
                 await self.config.reload_configurations()
             else:
-                await self.config.logger.log_warning(f"Unrecognized message received: {message}")
+                await self.config.logger.awarning(f"Unrecognized message received: {message}")
         except Exception as e:
-            await self.config.logger.log_critical(f"Error handling config change message: {e}")
+            await self.config.logger.acritical(f"Error handling config change message: {e}")
