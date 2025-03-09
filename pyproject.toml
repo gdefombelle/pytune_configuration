@@ -13,6 +13,8 @@ asyncpg = "^0.30.0"
 toml = "^0.10.2"
 psycopg2 = "^2.9.10"
 fastapi = "*"
+python-dotenv = "*"
+
 simple_logger = { git = "https://github.com/gdefombelle/simple_logger.git" }
 
 
