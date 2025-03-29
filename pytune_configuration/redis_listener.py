@@ -5,7 +5,7 @@ from redis.asyncio.client import PubSub
 from simple_logger.logger import get_logger, SimpleLogger
 
 
-logger: SimpleLogger = get_logger()
+logger: SimpleLogger = get_logger("configuration")
 class RedisListener:
     def __init__(self, redis_url: str, channels: dict):
         """

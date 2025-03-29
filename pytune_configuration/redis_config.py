@@ -5,7 +5,7 @@ from simple_logger.logger import get_logger, SimpleLogger
 from pytune_configuration.root_config import root_config
 
 # Instance Logger globale
-logger : SimpleLogger = get_logger()
+logger : SimpleLogger = get_logger("configuration")
 redis_client: Redis = None
 
 async def init_redis(redis_url:str)->Redis:

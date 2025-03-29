@@ -11,7 +11,7 @@ from pytune_configuration.redis_config import get_redis_client
 
 # Global async lock for protecting config updates
 config_lock = asyncio.Lock()
-logger: SimpleLogger = get_logger()
+logger: SimpleLogger = get_logger("configuration")
 config_global = None
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Use Config multisingleton class only in ASYNC Context 
