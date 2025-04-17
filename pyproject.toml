@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytune_configuration"
-version = "2.0.1"
+version = "2.0.2"
 description = "Configuration and service utilities for PyTune platform"
 authors = ["Gabriel de Fombelle <gabriel.de.fombelle@gmail.com>"]
 license = "MIT"
