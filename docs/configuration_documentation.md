@@ -1,137 +1,100 @@
-# PyTune Configuration - Documentation et README
+PyTune Configuration - Documentation et README
+📌 Introduction
+pytune_configuration est un package très léger pour charger les configurations de PyTune depuis PostgreSQL.
 
-## 📌 Introduction
-`pytune_configuration` est un package Python permettant la gestion centralisée des configurations pour les différents services de PyTune. Il s'appuie sur **PostgreSQL** pour stocker et récupérer les paramètres de configuration et **Redis** pour la gestion des mises à jour dynamiques.
+Le package expose une seule classe principale : SimpleConfig.
 
----
+Aucune synchronisation dynamique via Redis : les paramètres sont lus au démarrage du service.
 
-## 📁 Structure du projet
-```
+📁 Structure du projet
+bash
+Copy
+Edit
 pytune_configuration/
-│── pytune_configuration/  # Package source
+│── pytune_configuration/
 │   ├── __init__.py
-│   ├── config_service.py   # Service principal de gestion des configurations
-│   ├── root_config.py      # Configuration principale (lecture .env et variables système)
-│   ├── postgres_service.py # Connexion à PostgreSQL
-│   ├── redis_config.py     # Connexion à Redis
-│   ├── utils.py            # Fonctions utilitaires
-│── tests/                 # Tests unitaires
-│── .gitignore             # Fichiers ignorés par Git
-│── .env.example           # Exemple des variables d'environnement
-│── pyproject.toml         # Fichier Poetry (gestion des dépendances)
-│── poetry.lock            # Fichier de verrouillage des dépendances
-│── README.md              # Documentation du package
-│── docs/                  # Documentation détaillée
-```
-
----
-
-## 🔧 Installation
-
-### 1️⃣ Installation via Poetry
-```bash
+│   ├── simple_config.py    # Classe SimpleConfig
+│   ├── root_config.py      # Paramètres principaux (DB, credentials, etc.)
+│   ├── utils.py            # Utilitaires (parse_value, etc.)
+│── pyproject.toml          # Dépendances (Poetry)
+│── README.md               # Documentation rapide
+🔧 Installation
+1️⃣ Installation via Poetry
+bash
+Copy
+Edit
 poetry add git+https://github.com/gdefombelle/pytune_configuration.git
-```
+2️⃣ Variables d'environnement nécessaires
+Pas de .env dans ce package, mais il attend certaines variables dans l'environnement système :
 
-### 2️⃣ Configuration des variables d'environnement
-Créez un fichier `.env` dans le projet et définissez les variables nécessaires :
-
-```
+ini
+Copy
+Edit
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_NAME=pianos
 CONFIG_MANAGER_USER=config_manager
 CONFIG_MANAGER_PWD=SuperSecretPassword
-FASTAPI_USER=fastapi_user
-FASTAPI_PWD=AnotherSecretPassword
-REDIS_HOST=127.0.0.1
-OPENSEARCH_HOST=http://localhost:9200
-OPENSEARCH_USER=admin
-OPENSEARCH_PASSWORD=AnotherSecretPassword
-```
-> 📌 **Ne jamais committer le fichier `.env` dans Git !**
+REDIS_URL=redis://127.0.0.1:6379
+RABBIT_BROKER_URL=pyamqp://admin:MyStr0ngP@ss2024!@localhost//
+RABBIT_BACKEND=redis://127.0.0.1:6379/0
+📌 En général ces variables sont fournies par le conteneur Docker.
 
----
+🚀 Utilisation
+🔹 Charger la configuration
+python
+Copy
+Edit
+from pytune_configuration.simple_config import SimpleConfig
 
-## 🚀 Utilisation
+config = SimpleConfig(table_name="configurations")
+🔹 Accéder aux paramètres
+Après chargement, chaque paramètre est disponible comme attribut Python :
 
-### 🔹 Charger les configurations
+python
+Copy
+Edit
+print(config.DB_HOST)
+print(config.OPENSEARCH_HOST)
+print(config.__ZZZ__)  # Exemple d'un paramètre custom
+🔹 Personnaliser la table PostgreSQL
+Par défaut, SimpleConfig lit la table configurations, mais tu peux spécifier une autre table :
 
-```python
-from pytune_configuration.config_service import Config
+python
+Copy
+Edit
+custom_config = SimpleConfig(table_name="my_custom_config_table")
+🏗️ Fonctionnement interne
+Connexion PostgreSQL synchrone via psycopg2.
 
-async def main():
-    config = await Config().initialize()
-    print(config.DB_HOST)
+Chargement de toutes les paires (name, value) de la table donnée.
 
-import asyncio
-asyncio.run(main())
-```
+Dynamique : chaque clé devient un attribut Python de l'instance config.
 
-### 🔹 Récupérer une configuration spécifique
-```python
-config_value = config.MY_CONFIG_KEY
-```
+Pas de Redis, pas de refresh automatique = fiable, simple et rapide.
 
-### 🔹 Ajouter une nouvelle configuration
-```python
-await config.add_config_to_db("NEW_CONFIG", "some_value", "Nouvelle config ajoutée")
-```
+📜 Bonnes pratiques
+✅ Charger la config une seule fois au lancement du service.
+✅ Mettre à jour la base PostgreSQL si des paramètres changent, puis redémarrer le service si nécessaire.
+✅ Ne pas modifier directement les attributs Python du config, toujours passer par la base PostgreSQL.
 
-### 🔹 Mettre à jour une configuration
-```python
-await config.update_config_in_db("EXISTING_CONFIG", "updated_value", "Mise à jour")
-```
+🔗 Liens utiles
+Documentation officielle PostgreSQL
 
-### 🔹 Supprimer une configuration
-```python
-await config.delete_config_in_db("EXISTING_CONFIG")
-```
+Poetry
 
----
+📌 Auteur
+Développé pour PyTune Project 🎵 par
+Gabriel de Fombelle
+🌍 Site Web : pytune.com
+✉️ Email : contact@pytune.com
 
-## 🏗️ Architecture
-### 1️⃣ **Chargement des configurations**
-- La classe `RootConfig` charge les **valeurs de base** depuis `.env` ou **les variables d’environnement**.
-- La classe `Config` récupère les **configurations dynamiques** depuis PostgreSQL.
-- Les **changements de configuration** sont propagés en temps réel via **Redis**.
+Exemple ultra-minimal :
+python
+Copy
+Edit
+from pytune_configuration.simple_config import SimpleConfig
 
-### 2️⃣ **Gestion des configurations avec PostgreSQL**
-Toutes les configurations sont stockées dans une table `configurations` avec la structure suivante :
-```sql
-CREATE TABLE configurations (
-    id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    value TEXT NOT NULL,
-    description TEXT
-);
-```
+config = SimpleConfig()
 
-### 3️⃣ **Mises à jour dynamiques avec Redis**
-Lorsqu’un paramètre est mis à jour dans la base de données, un message est envoyé à Redis sur le canal `config_change` pour informer les services en écoute.
-
----
-
-## 📜 Bonnes pratiques
-✅ Toujours utiliser `await config.get_config()` pour éviter des incohérences.
-✅ Ne stocker **aucun mot de passe en dur** dans le code, tout passe par `.env`.
-✅ Utiliser PostgreSQL pour les configurations persistantes et Redis pour les mises à jour en temps réel.
-✅ En **développement**, charger les valeurs depuis `.env`.
-✅ En **production**, définir les variables dans `docker-compose.prod.yml`.
-
----
-
-## 🔗 Liens utiles
-- [Documentation officielle de PostgreSQL](https://www.postgresql.org/docs/)
-- [Documentation officielle de Redis](https://redis.io/docs/)
-- [Documentation FastAPI](https://fastapi.tiangolo.com/)
-
----
-
-## 📌 Auteur
-Projet développé par **Nicolas de Fombelle** - PyTune Project 🎵
-
-🌍 **Site Web :** [pytune.com](https://pytune.com)  
-🐙 **GitHub :** [gdefombelle](https://github.com/gdefombelle)  
-✉️ **Email :** contact@pytune.com
-
+print(config.SOME_PARAMETER)  # Accède à une config nommée "SOME_PARAMETER"
