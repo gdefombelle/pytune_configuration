@@ -1,13 +1,14 @@
 [tool.poetry]
 name = "pytune_configuration"
-version = "2.0.2"
+version = "2.0.3"
 description = "Configuration and service utilities for PyTune platform"
 authors = ["Gabriel de Fombelle <gabriel.de.fombelle@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "pytune_configuration" }]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.12.3"
 redis = "^5.0.0"
 asyncpg = "^0.30.0"
 toml = "^0.10.2"
@@ -15,8 +16,11 @@ psycopg2 = "^2.9.10"
 fastapi = "*"
 python-dotenv = "*"
 
-simple_logger = { git = "https://github.com/gdefombelle/simple_logger.git" }
+# -- PROD --
+#simple_logger = { git = "https://github.com/gdefombelle/simple_logger.git" }
 
+# -- DEV --
+simple_logger = { path = "../../packages/simple_logger"}
 
 [build-system]
 requires = ["poetry-core"]

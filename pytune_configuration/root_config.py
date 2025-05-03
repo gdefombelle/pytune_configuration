@@ -25,7 +25,7 @@ class RootConfig:
 
     # Redis (Docker-compose doit définir `REDIS_HOST`)
     REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-    REDIS_URL = f"redis://{REDIS_HOST}:6379"
+    REDIS_URL = os.getenv("REDIS_URL", f"redis://:UltraSecurePass2024!@195.201.9.184:6379")
 
     def __init__(self):
         """

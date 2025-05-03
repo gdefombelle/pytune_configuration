@@ -23,7 +23,7 @@ class SimpleConfig:
             # Charger les URL dynamiques en fonction de l'environnement
             self.REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
             self.RABBIT_BROKER_URL = os.getenv("RABBIT_BROKER_URL", "pyamqp://admin:MyStr0ngP@ss2024!@localhost//")
-            self.RABBIT_BACKEND = os.getenv("RABBIT_BACKEND", "redis://127.0.0.1:6379/0")
+            self.RABBIT_BACKEND = os.getenv("RABBIT_BACKEND", "redis://:UltraSecurePass2024!@195.201.9.184:6379")
             
 
     def _load_configurations(self):
