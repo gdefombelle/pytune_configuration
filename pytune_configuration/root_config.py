@@ -24,7 +24,7 @@ class RootConfig:
     FASTAPI_PWD = os.getenv("FASTAPI_PWD")  # Défini dans .env
 
     # Redis (Docker-compose doit définir `REDIS_HOST`)
-    REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+    REDIS_HOST = os.getenv("REDIS_HOST", "192.205.9.184")
     REDIS_URL = os.getenv("REDIS_URL", f"redis://:UltraSecurePass2024!@195.201.9.184:6379")
 
     def __init__(self):
