@@ -2,7 +2,7 @@
 name = "pytune_configuration"
 version = "0.0.0"
 description = "PyTune configuration module"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 
 [tool.poetry]
 name = "pytune_configuration"
@@ -14,7 +14,7 @@ readme = "README.md"
 packages = [{ include = "pytune_configuration" }]
 
 [tool.poetry.dependencies]
-python = ">=3.12,<4.0"
+python = ">=3.12,<3.13"
 redis = "^5.0.7"
 asyncpg = "^0.30.0"
 toml = "^0.10.2"
