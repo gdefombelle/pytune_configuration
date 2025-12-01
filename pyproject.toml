@@ -1,5 +1,11 @@
+[project]
+name = "pytune_configuration"
+version = "0.0.0"
+description = "PyTune configuration module"
+requires-python = ">=3.12"
+
 [tool.poetry]
-name = "pytune-configuration"
+name = "pytune_configuration"
 version = "2.0.3"
 description = "Configuration and service utilities for PyTune platform"
 authors = ["Gabriel de Fombelle <gabriel.de.fombelle@gmail.com>"]
@@ -8,15 +14,16 @@ readme = "README.md"
 packages = [{ include = "pytune_configuration" }]
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = ">=3.12,<4.0"
 redis = "^5.0.7"
 asyncpg = "^0.30.0"
 toml = "^0.10.2"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.10"   # <-- roue binaire, conseillée sous Windows
 
-# -- DEV --
-simple-logger = { path = "../../packages/simple_logger", develop = true }
+# -- DEV + PROD --
+simple_logger = { git = "https://github.com/gdefombelle/simple_logger.git", branch = "main"}
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
